@@ -35,25 +35,75 @@ cat()
 library(httr)
 library(zip)
 
-# Define the URL
+
 url <- "https://www.dropbox.com/scl/fo/zlkc7mwmsj2h2q53j5vn5/AK-Dhwjrlzczagsdlkkc3lo?rlkey=qx0caf1eofynrpunhlrjvgfwa&e=1&st=yc6pbrmj&dl=1"
 
-# Define the destination file for the ZIP file
+
 zip_file <- "downloaded_file.zip"
 
-# Send GET request to download the ZIP file
+
 response <- GET(url)
 
-# Check if the request was successful (status code 200)
+
 if (status_code(response) == 200) {
-  # Write the content of the response (ZIP file) to disk
+  
   writeBin(content(response, "raw"), zip_file)
   cat("ZIP file downloaded successfully.\n")
   
-  # Unzip the downloaded file
+
   unzip(zip_file, exdir = "extracted_files")  # specify the extraction directory
   cat("ZIP file extracted successfully.\n")
 } else {
   cat("Failed to download ZIP file. Status:", status_code(response), "\n")
 }
+pg1
+names(pg1)
+pg1$content
+pg1$all_headers
+pg1$handle
+pg1$headers
+library(httr)
+
+# Step 1: Download the ZIP file
+url <- "https://www.dropbox.com/scl/fo/zlkc7mwmsj2h2q53j5vn5/AK-Dhwjrlzczagsdlkkc3lo?rlkey=qx0caf1eofynrpunhlrjvgfwa&e=1&st=yc6pbrmj&dl=1"
+response <- GET(url)
+
+if (status_code(response) == 200) {
+  # Step 2: Save ZIP content locally
+  zip_path <- "downloaded_file.zip"
+  writeBin(content(response, "raw"), zip_path)
+  
+  # Step 3: Extract ZIP file
+  extracted_dir <- "extracted_files"
+  dir.create(extracted_dir, showWarnings = FALSE)
+  unzip(zip_path, exdir = extracted_dir)
+  
+  # Step 4: Identify extracted files
+  extracted_files <- list.files(extracted_dir, full.names = TRUE)
+  print(extracted_files) # To see the extracted files
+  
+  # Assuming the extracted file is in a readable format (e.g., Excel)
+  for (file in extracted_files) {
+    if (grepl("\\.xlsx$", file, ignore.case = TRUE)) {
+      # Convert Excel to CSV
+      library(readxl)
+      data <- read_excel(file)
+      csv_name <- gsub("\\.xlsx$", ".csv", file, ignore.case = TRUE)
+      write.csv(data, csv_name, row.names = FALSE)
+    } else if (grepl("\\.json$", file, ignore.case = TRUE)) {
+      # Convert JSON to CSV
+      library(jsonlite)
+      data <- fromJSON(file)
+      csv_name <- gsub("\\.json$", ".csv", file, ignore.case = TRUE)
+      write.csv(data, csv_name, row.names = FALSE)
+    }
+    # Add other conversions as needed for different formats
+  }
+  
+  print("Conversion complete. Check the extracted directory.")
+} else {
+  cat("Failed to download ZIP file. Status:", status_code(response), "\n")
+}
+list.files("extracted_files", full.names = TRUE)
+getwd()
 
